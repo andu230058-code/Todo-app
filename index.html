@@ -39,13 +39,20 @@
 const SUPABASE_URL = "https://ohvqtnuikmduijbenssc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_sPIkB9vNqCSPgrl6vOXxDg_kUA8kPLG";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const statusText = document.getElementById("status-text");
 const errorText = document.getElementById("error-text");
 const taskInput = document.getElementById("task-input");
 const addBtn = document.getElementById("add-btn");
 const taskList = document.getElementById("task-list");
+
+if (!window.supabase) {
+  statusText.textContent = "Could not load required library.";
+  errorText.textContent = "The Supabase script failed to load. Try turning off any VPN, switching WiFi/data, or refreshing.";
+  errorText.classList.remove("hidden");
+  throw new Error("Supabase library failed to load from CDN");
+}
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let tasks = [];
 
@@ -96,10 +103,17 @@ function renderTasks() {
 }
 
 async function fetchTasks() {
+  const timeout = setTimeout(() => {
+    statusText.textContent = "Taking longer than expected...";
+    errorText.textContent = "Connection to the database is slow or blocked. Try turning off any VPN or switching network.";
+    errorText.classList.remove("hidden");
+  }, 8000);
+
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
     .order("created_at", { ascending: true });
+  clearTimeout(timeout);
   if (error) {
     showError(error.message);
   } else {
