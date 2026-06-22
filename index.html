@@ -36,8 +36,12 @@
 </div>
 
 <script>
+// ====================================================================
+// STEP A: PASTE YOUR OWN VALUES HERE
+// ====================================================================
 const SUPABASE_URL = "https://ohvqtnuikmduijbenssc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_sPIkB9vNqCSPgrl6vOXxDg_kUA8kPLG";
+// ====================================================================
 
 const statusText = document.getElementById("status-text");
 const errorText = document.getElementById("error-text");
@@ -46,11 +50,28 @@ const addBtn = document.getElementById("add-btn");
 const taskList = document.getElementById("task-list");
 
 if (!window.supabase) {
-  statusText.textContent = "Could not load required library.";
-  errorText.textContent = "The Supabase script failed to load. Try turning off any VPN, switching WiFi/data, or refreshing.";
-  errorText.classList.remove("hidden");
-  throw new Error("Supabase library failed to load from CDN");
+  // Library hasn't loaded yet — retry a few times before giving up
+  let attempts = 0;
+  const maxAttempts = 10;
+  statusText.textContent = "Connecting...";
+
+  const retryInterval = setInterval(() => {
+    attempts++;
+    if (window.supabase) {
+      clearInterval(retryInterval);
+      initApp();
+    } else if (attempts >= maxAttempts) {
+      clearInterval(retryInterval);
+      statusText.textContent = "Could not load required library.";
+      errorText.textContent = "The Supabase script failed to load after several tries. Try turning off any VPN, switching WiFi/data, or refreshing.";
+      errorText.classList.remove("hidden");
+    }
+  }, 500);
+} else {
+  initApp();
 }
+
+function initApp() {
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -169,6 +190,8 @@ taskInput.addEventListener("keydown", (e) => {
 });
 
 fetchTasks();
+
+} // end initApp
 </script>
 </body>
 </html>
