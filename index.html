@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Today's list</title>
+<title>My Tasks</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F1B16">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -36,12 +40,8 @@
 </div>
 
 <script>
-// ====================================================================
-// STEP A: PASTE YOUR OWN VALUES HERE
-// ====================================================================
 const SUPABASE_URL = "https://ohvqtnuikmduijbenssc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_sPIkB9vNqCSPgrl6vOXxDg_kUA8kPLG";
-// ====================================================================
 
 const statusText = document.getElementById("status-text");
 const errorText = document.getElementById("error-text");
@@ -50,7 +50,6 @@ const addBtn = document.getElementById("add-btn");
 const taskList = document.getElementById("task-list");
 
 if (!window.supabase) {
-  // Library hasn't loaded yet — retry a few times before giving up
   let attempts = 0;
   const maxAttempts = 10;
   statusText.textContent = "Connecting...";
@@ -191,7 +190,13 @@ taskInput.addEventListener("keydown", (e) => {
 
 fetchTasks();
 
-} // end initApp
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
